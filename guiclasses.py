@@ -5,7 +5,6 @@ import tkinter.messagebox
 
 
 class MainWindow:
-
     def __init__(self, main):
 
         # definition for main window and layout parts
@@ -24,6 +23,7 @@ class MainWindow:
         self.searchButton = Button(search_frame, text='Szukaj', command=self.set_weather)
         self.searchInput.pack(side=LEFT)
         self.searchButton.pack(side=LEFT)
+        self.searchInput.bind("<Return>", lambda x: self.set_weather())
 
         self.location_label = Label(weather_frame, text="Lokalizacja")
 
@@ -69,9 +69,8 @@ class MainWindow:
         self.windd.grid(row=10, column=1, sticky=W)
         self.winds.grid(row=11, column=1, sticky=W)
         main.update_idletasks()
-        print(main.winfo_width())
         self.forecast_frame.columnconfigure(0, minsize=int(main.winfo_width()))
-        self.forecast_label.grid(sticky=N+S+W+E, columnspan=2)
+        self.forecast_label.grid(sticky=N + S + W + E, columnspan=2)
 
     @staticmethod
     def orient_window(main):
@@ -80,6 +79,7 @@ class MainWindow:
         x = (sw / 2) - (400 / 2)
         y = (sh / 2) - (400 / 2)
         main.geometry('%dx%d+%d+%d' % (400, 550, x, y))
+        main.resizable(width=False, height=False)
 
     def set_weather(self):
         try:
@@ -91,10 +91,10 @@ class MainWindow:
                     weather_dictionary['channel']['location']['region']])
                 self.temperature.config(text=weather_dictionary['channel']['item']['condition']['temp'] + "C")
                 self.conditions.config(text=str(weatherfunctions.conditions[
-                                            int(weather_dictionary['channel']['item']['condition']['code'])]))
+                                                    int(weather_dictionary['channel']['item']['condition']['code'])]))
                 self.humidity.config(text=weather_dictionary['channel']['atmosphere']['humidity'] + "%")
                 press = float(weather_dictionary['channel']['atmosphere']['pressure']) / 33.76
-                self.pressure.config(text=str(math.ceil(press*100/100)) + "hPa")
+                self.pressure.config(text=str(math.ceil(press * 100 / 100)) + "hPa")
                 self.sunrise.config(text=weather_dictionary['channel']['astronomy']['sunrise'])
                 self.sunset.config(text=weather_dictionary['channel']['astronomy']['sunset'])
                 index = int(weather_dictionary['channel']['wind']['direction']) // 22.5
@@ -107,26 +107,22 @@ class MainWindow:
                 days_list.append(Label(self.forecast_frame, text=""))
                 forecast_list.append(Label(self.forecast_frame, text=""))
                 while index < 6:
-                    days_list.append(Label(
-                        self.forecast_frame, text=weatherfunctions.days[
-                                                      weather_dictionary['channel']['item']['forecast'][index]['day']]
-                                                  + ', ' + weatherfunctions.translate_month(
-                            weather_dictionary['channel']['item']['forecast'][index]['date'])))
-                    forecast_list.append(Label(self.forecast_frame, text=str(weatherfunctions.conditions[
-                                                                             int(weather_dictionary['channel']['item'][
-                                                                                     'forecast'][index]['code'])])
-                                                                     + ", Max: " +
-                                                                     weather_dictionary['channel']['item']['forecast'][
-                                                                         index]['high']
-                                                                     + "C, Min: " +
-                                                                     weather_dictionary['channel']['item']['forecast'][
-                                                                         index]['low']
-                                                                     + "C"))
-                    days_list[index].grid(row=index*2-1, column=0)
-                    forecast_list[index].grid(row=index*2, column=0)
+                    days_list.append(Label(self.forecast_frame, text=weatherfunctions.days[
+                                                                         weather_dictionary['channel']['item'][
+                                                                             'forecast'][index][
+                                                                             'day']] + ', ' +
+                                                                                    weatherfunctions.translate_month(
+                        weather_dictionary['channel']['item']['forecast'][index]['date'])))
+                    forecast_list.append(Label(self.forecast_frame, text=str(weatherfunctions.conditions[int(
+                        weather_dictionary['channel']['item']['forecast'][index]['code'])]) + ", Max: " +
+                                                                         weather_dictionary['channel']['item'][
+                                                                             'forecast'][index]['high'] + "C, Min: " +
+                                                                         weather_dictionary['channel']['item'][
+                                                                             'forecast'][index]['low'] + "C"))
+
+                    days_list[index].grid(row=index * 2 - 1, column=0)
+                    forecast_list[index].grid(row=index * 2, column=0)
                     index += 1
 
-
-                print(weather_dictionary)
         except Exception as e:
             print(e)
